@@ -1,18 +1,22 @@
 #!/usr/bin/env bash
 
 CURRDIR=`pwd`
-cd ../../../../../../..
-export GOPATH=`pwd`
+cd ../../../
+export WORKPATH=`pwd`
 
 set -e
-Protoc=${GOPATH}/bin/protoc
+Protoc=${WORKPATH}/bin/protoc
 
 # cellmesh服务绑定
-CellMeshProtoGen=${GOPATH}/bin/cmprotogen
-go build -v -o ${CellMeshProtoGen} github.com/davyxu/cellmesh/tools/protogen
+CellMeshProtoGen=${WORKPATH}/bin/cmprotogen
+PkgPath=${WORKPATH}/pkg
+echo  111
+echo  ${PkgPath}
+go build  -v  -o ${CellMeshProtoGen}  github.com/davyxu/cellmesh/tool/protogen
 
+echo ${CellMeshProtoGen}
 # 协议生成
-ProtoPlusGen=${GOPATH}/bin/protoplus
+ProtoPlusGen=${WORKPATH}/bin/protoplus
 go build -v -o ${ProtoPlusGen} github.com/davyxu/protoplus
 
 cd ${CURRDIR}

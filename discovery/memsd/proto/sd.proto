@@ -97,3 +97,7 @@ struct ClearKeyREQ{
 struct ClearKeyACK{
 	Code ResultCode
 }
+
+[AutoMsgID Codec:"protoplus" Service: "memsd"]
+struct PingMemsd{
+}

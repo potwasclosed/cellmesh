@@ -5,6 +5,7 @@ import (
 	"github.com/davyxu/cellmesh/discovery/memsd/proto"
 	"github.com/davyxu/cellnet"
 	"strconv"
+	"time"
 )
 
 func init() {
@@ -91,6 +92,10 @@ func init() {
 		ev.Session().Send(&proto.DeleteValueACK{
 			Key: msg.Key,
 		})
+	}
+
+	proto.Handle_Memsd_PingMemsd = func(ev cellnet.Event) {
+		ev.Session().(cellnet.ContextSet).SetContext("lastPingTime", time.Now().Unix())
 	}
 
 	proto.Handle_Memsd_AuthREQ = func(ev cellnet.Event) {

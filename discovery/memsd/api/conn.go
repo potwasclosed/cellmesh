@@ -7,6 +7,7 @@ import (
 	"github.com/davyxu/cellnet"
 	"github.com/davyxu/cellnet/peer"
 	"github.com/davyxu/cellnet/proc"
+	"github.com/davyxu/cellnet/timer"
 	"time"
 )
 
@@ -36,10 +37,26 @@ func (self *memDiscovery) connect(addr string) {
 			ev.Session().Send(&proto.AuthREQ{
 				Token: self.token,
 			})
+
+			{
+				loopTime := timer.NewLoop(nil, time.Second*10, func(loop *timer.Loop) {
+					if loop.Running() {
+						ev.Session().Send(&proto.PingMemsd{})
+					}
+				}, nil).Notify().Start()
+				ev.Session().(cellnet.ContextSet).SetContext("loopTime", loopTime)
+			}
 		case *cellnet.SessionClosed:
 			self.token = ""
 			log.Errorf("memsd discovery lost!")
 
+			{
+				var loopTime *timer.Loop
+				ok := ev.Session().(cellnet.ContextSet).FetchContext("loopTime", loopTime)
+				if ok {
+					loopTime.Stop()
+				}
+			}
 		case *proto.AuthACK:
 
 			self.token = msg.Token
