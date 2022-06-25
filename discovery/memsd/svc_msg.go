@@ -96,20 +96,23 @@ func init() {
 	}
 
 	proto.Handle_Memsd_PingMemsd = func(ev cellnet.Event) {
+		var lastPing int64
+		ev.Session().(cellnet.ContextSet).FetchContext("lastPingTime", &lastPing)
+
 		now := time.Now().Unix()
 		ev.Session().(cellnet.ContextSet).SetContext("lastPingTime", now)
 
-		var stopper timer.AfterStopper
-		ok := ev.Session().(cellnet.ContextSet).FetchContext("checkTimer", stopper)
-		if !ok {
+		if lastPing == 0 {
+			//暂定30秒
 			timer.NewLoop(nil, time.Second*30, func(loop *timer.Loop) {
 				if loop.Running() {
-					var lastPing *int64
 
-					ev.Session().(cellnet.ContextSet).FetchContext("lastPingTime", lastPing)
-					if lastPing != nil {
+					var lastPingTime int64
+					ev.Session().(cellnet.ContextSet).FetchContext("lastPingTime", &lastPingTime)
+
+					if lastPingTime > 0 {
 						now = time.Now().Unix()
-						if *lastPing+int64(30) < now {
+						if lastPingTime+int64(30) < now {
 							loop.Stop()
 							ev.Session().Close()
 						}
