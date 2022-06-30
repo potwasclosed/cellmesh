@@ -52,7 +52,7 @@ func (self *memDiscovery) connect(addr string) {
 
 			{
 				var loopTime *timer.Loop
-				ok := ev.Session().(cellnet.ContextSet).FetchContext("loopTime", loopTime)
+				ok := ev.Session().(cellnet.ContextSet).FetchContext("loopTime", &loopTime)
 				if ok {
 					loopTime.Stop()
 				}
